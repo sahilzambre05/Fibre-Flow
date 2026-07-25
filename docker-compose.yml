@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  # 1. FastAPI AI Microservice
+  ai-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.fastapi
+    container_name: paper-ai-fastapi
+    ports:
+      - "8000:8000"
+    restart: always
+
+  # 2. Spring Boot Gateway Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: paper-backend-springboot
+    ports:
+      - "8080:8080"
+    environment:
+      - AI_FASTAPI_URL=http://ai-service:8000/predict
+    depends_on:
+      - ai-service
+    restart: always
+
+  # 3. React Industrial Dashboard
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: paper-frontend-react
+    ports:
+      - "80:80"
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: always

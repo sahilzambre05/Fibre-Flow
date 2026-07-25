@@ -1,0 +1,27 @@
+services:
+  # Internal AI inference service. It is reachable only by the Spring Boot gateway.
+  - type: pserv
+    name: paper-ai-fastapi
+    runtime: python
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn fastapi_app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+
+  # Public API consumed by the Vercel frontend.
+  - type: web
+    name: paper-backend-springboot
+    runtime: docker
+    region: oregon
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /api/grade-change/health
+    envVars:
+      - key: AI_FASTAPI_HOSTPORT
+        fromService:
+          type: pserv
+          name: paper-ai-fastapi
+          property: hostport
