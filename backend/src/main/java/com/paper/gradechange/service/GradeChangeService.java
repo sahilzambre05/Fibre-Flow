@@ -15,7 +15,8 @@ public class GradeChangeService {
 
     private final RestTemplate restTemplate;
 
-    @Value("${ai.fastapi.url:http://localhost:8000/predict}")
+    // @Value("${ai.fastapi.url:http://localhost:8000/predict}")
+    @Value("${AI_FASTAPI_URL}")
     private String fastApiUrl;
 
     public GradeChangeService(RestTemplate restTemplate) {
